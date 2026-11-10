@@ -129,6 +129,8 @@ resource "pocketid_user" "john_doe" {
 - `pocketid_client` - Manages OIDC client applications
 - `pocketid_user` - Manages user accounts
 - `pocketid_group` - Manages user groups
+- `pocketid_api` - Manages OAuth APIs (resource servers) and their permissions
+- `pocketid_api_client_grant` - Grants an OIDC client access to an API's permissions
 
 ### Available Data Sources
 
@@ -147,6 +149,8 @@ Full documentation is available on the [Terraform Registry](https://registry.ter
 - [Resource: pocketid_client](https://registry.terraform.io/providers/trozz/pocketid/latest/docs/resources/client)
 - [Resource: pocketid_user](https://registry.terraform.io/providers/trozz/pocketid/latest/docs/resources/user)
 - [Resource: pocketid_group](https://registry.terraform.io/providers/trozz/pocketid/latest/docs/resources/group)
+- [Resource: pocketid_api](https://registry.terraform.io/providers/trozz/pocketid/latest/docs/resources/api)
+- [Resource: pocketid_api_client_grant](https://registry.terraform.io/providers/trozz/pocketid/latest/docs/resources/api_client_grant)
 
 ## Examples
 
