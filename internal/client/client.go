@@ -5,6 +5,7 @@ import (
 	"context"
 	"crypto/tls"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"mime/multipart"
@@ -28,6 +29,14 @@ const (
 	// MinVersionClientSecretsEndpoint is the first version that serves the
 	// plural /secrets endpoint, which replaced /secret.
 	MinVersionClientSecretsEndpoint = "2.14.0"
+
+	// MinVersionAPIs is the first Pocket ID release with OAuth APIs and their
+	// permissions (/api/apis).
+	MinVersionAPIs = "2.10.0"
+
+	// MinVersionAPIClientGrants is the first release that grants a client access
+	// to one API at a time (/api/apis/{id}/clients/{clientId}).
+	MinVersionAPIClientGrants = "2.14.0"
 )
 
 const contentTypeJSON = "application/json"
@@ -54,6 +63,23 @@ func (e *RateLimitError) Error() string {
 		return fmt.Sprintf("HTTP %d: %s (Retry-After: %s)", e.StatusCode, e.Message, e.RetryAfter)
 	}
 	return fmt.Sprintf("HTTP %d: %s", e.StatusCode, e.Message)
+}
+
+// HTTPError is a non-2xx response from the Pocket-ID API.
+type HTTPError struct {
+	StatusCode int
+	Message    string
+}
+
+func (e *HTTPError) Error() string {
+	return fmt.Sprintf("HTTP %d: %s", e.StatusCode, e.Message)
+}
+
+// IsNotFound reports whether err is a 404 from the Pocket-ID API, i.e. the
+// object no longer exists.
+func IsNotFound(err error) bool {
+	var httpErr *HTTPError
+	return errors.As(err, &httpErr) && httpErr.StatusCode == http.StatusNotFound
 }
 
 // NewClient creates a new Pocket-ID API client
@@ -373,7 +399,7 @@ func (c *Client) doSingleRequest(ctx context.Context, method, endpoint, contentT
 					RetryAfter: retryAfter,
 				}
 			}
-			return nil, fmt.Errorf("HTTP %d: %s", resp.StatusCode, string(respBody))
+			return nil, &HTTPError{StatusCode: resp.StatusCode, Message: string(respBody)}
 		}
 		tflog.Error(ctx, "API Error", map[string]interface{}{
 			"status_code": resp.StatusCode,
@@ -388,7 +414,7 @@ func (c *Client) doSingleRequest(ctx context.Context, method, endpoint, contentT
 				RetryAfter: retryAfter,
 			}
 		}
-		return nil, fmt.Errorf("HTTP %d: %s", resp.StatusCode, errResp.Error)
+		return nil, &HTTPError{StatusCode: resp.StatusCode, Message: errResp.Error}
 	}
 
 	return respBody, nil
