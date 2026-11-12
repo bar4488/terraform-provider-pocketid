@@ -1,0 +1,11 @@
+# What this repository builds: read by build-api (bar4488/build-api,
+# README.md "Recipes") at the commit it builds. Where and how it is built is
+# not this file's to say.
+artifacts:
+  # The OpenTofu provider the lab uses until upstream releases the API
+  # resources (proxmox-homelab configure-controller.yml).
+  - name: terraform-provider-pocketid
+    tags: "v*-apis.*"
+    toolchain: go
+    dir: .
+    ldflags: "-s -w -X main.version={version}"
