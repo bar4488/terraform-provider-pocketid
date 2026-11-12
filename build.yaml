@@ -5,7 +5,7 @@ artifacts:
   # The OpenTofu provider the lab uses until upstream releases the API
   # resources (proxmox-homelab configure-controller.yml).
   - name: terraform-provider-pocketid
-    tags: "v*-apis.*"
+    tags: "*-apis.*"
     toolchain: go
     dir: .
     ldflags: "-s -w -X main.version={version}"
